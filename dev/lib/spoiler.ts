@@ -1,5 +1,3 @@
-/// <reference path="./types.d.ts" />
-
 import { ok as assert } from "devlop";
 import { factorySpace } from "micromark-factory-space";
 import { markdownLineEnding } from "micromark-util-character";

@@ -69,7 +69,7 @@ export function directiveHtml(): HtmlExtension {
     if (!stack) this.setData("spoilerStack", (stack = []));
     stack.push({ type: "spoilerContainer" });
 
-    this.tag("<details><summary>spoiler</summary>");
+    this.tag("<details>");
   }
 
   function exitContainerContent(this: CompileContext): undefined {
