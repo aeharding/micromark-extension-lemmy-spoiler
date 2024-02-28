@@ -17,9 +17,11 @@ export function directiveFromMarkdown() {
   return {
     enter: {
       spoilerContainer: enterContainer,
+      spoilerLabel: enterLabel,
     },
     exit: {
       spoilerContainer: exit,
+      spoilerLabel: exit,
     },
   };
 }
@@ -53,6 +55,10 @@ function enterContainer(this: CompileContext, token: Token) {
 
 function enter(this: CompileContext, token: Token) {
   this.enter({ type: "spoilerContainer", children: [] }, token);
+}
+
+function enterLabel(this: CompileContext, token: Token) {
+  this.enter({ type: "spoilerLabel", children: [] }, token);
 }
 
 function exit(this: CompileContext, token: Token) {

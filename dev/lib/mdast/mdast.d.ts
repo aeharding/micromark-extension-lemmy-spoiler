@@ -15,6 +15,21 @@ export interface SpoilerContainer extends Parent {
   children: Array<BlockContent | DefinitionContent>;
 }
 
+/**
+ * Markdown directive (container form).
+ */
+export interface SpoilerLabel extends Parent {
+  /**
+   * Node type of container directive.
+   */
+  type: "spoilerLabel";
+
+  /**
+   * Children of container directive.
+   */
+  children: Array<BlockContent | DefinitionContent>;
+}
+
 // Add custom data tracked to turn a syntax tree into markdown.
 declare module "mdast-util-to-markdown" {
   interface ConstructNameMap {
@@ -39,7 +54,7 @@ declare module "mdast-util-to-markdown" {
      *   | :::
      * ```
      */
-    spoilerContainerLabel: "spoilerContainerLabel";
+    spoilerLabel: "spoilerLabel";
   }
 }
 
@@ -51,6 +66,7 @@ declare module "mdast" {
      * quotes), which contains further flow content.
      */
     spoilerContainer: SpoilerContainer;
+    spoilerLabel: SpoilerLabel;
   }
 
   interface RootContentMap {
@@ -59,5 +75,6 @@ declare module "mdast" {
      * quotes), which contains further flow content.
      */
     spoilerContainer: SpoilerContainer;
+    spoilerLabel: SpoilerLabel;
   }
 }

@@ -56,11 +56,13 @@ export function directiveHtml(): HtmlExtension {
       spoilerContainerContent() {
         this.buffer();
       },
+      spoilerLabel: enterSpoilerLabel,
     },
     exit: {
       spoilerContainer: exit,
       spoilerContainerContent: exitContainerContent,
       spoilerContainerFence: exitContainerFence,
+      spoilerLabel: exitSpoilerLabel,
     },
   };
 
@@ -77,6 +79,18 @@ export function directiveHtml(): HtmlExtension {
     const stack = this.getData("spoilerStack");
     assert(stack, "expected directive stack");
     stack[stack.length - 1].content = data;
+  }
+
+  function enterSpoilerLabel(this: CompileContext): undefined {
+    this.tag("<summary>");
+    this.buffer();
+  }
+
+  function exitSpoilerLabel(this: CompileContext): undefined {
+    const data = this.resume();
+    this.raw(data);
+
+    this.tag("</summary>");
   }
 
   function exitContainerFence(this: CompileContext): undefined {

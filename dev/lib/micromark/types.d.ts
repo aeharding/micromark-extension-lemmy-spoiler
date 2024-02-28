@@ -4,8 +4,8 @@ declare module "micromark-util-types" {
   interface TokenTypeMap extends _TokenTypeMap {
     spoilerContainer: "spoilerContainer";
     spoilerContainerFence: "spoilerContainerFence";
-    spoilerContainerSequence: "spoilerContainerSequence";
     spoilerContainerContent: "spoilerContainerContent";
+    spoilerLabel: "spoilerLabel";
   }
 
   interface CompileData extends _CompileData {

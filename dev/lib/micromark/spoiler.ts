@@ -16,7 +16,7 @@ export const spoilerContainer: Construct = {
   concrete: true,
 };
 
-const name = "spoiler";
+const name = "spoiler" as const;
 
 const nonLazyLine = { tokenize: tokenizeNonLazyLine, partial: true };
 
@@ -41,8 +41,6 @@ function tokenizeSpoilerContainer(
   function start(code: Code) {
     assert(code === codes.colon, "expected `:`");
     effects.enter("spoilerContainer");
-    effects.enter("spoilerContainerFence");
-    effects.enter("spoilerContainerSequence");
     return sequenceOpen(code);
   }
 
@@ -72,30 +70,44 @@ function tokenizeSpoilerContainer(
       return afterColons;
     }
 
-    effects.exit("spoilerContainerSequence");
-    return afterName(code);
+    effects.enter("spoilerLabel");
+    const token = effects.enter(types.chunkText, {
+      contentType: constants.contentTypeText,
+      previous,
+    });
+    if (previous) previous.next = token;
+    previous = token;
+    return getLabelData(code);
   }
 
-  function afterName(code: Code) {
-    return factorySpace(effects, openAfter, types.whitespace)(code);
+  function getLabelData(code: Code) {
+    if (code === codes.eof) {
+      return nok(code);
+    }
+
+    if (markdownLineEnding(code)) {
+      effects.consume(code);
+      effects.exit(types.chunkText);
+      effects.exit("spoilerLabel");
+      return openAfter;
+    }
+
+    effects.consume(code);
+    return getLabelData;
   }
 
   function openAfter(code: Code) {
-    effects.exit("spoilerContainerFence");
-
     if (code === codes.eof) {
-      return afterOpening(code);
+      return nok(code);
     }
 
     if (markdownLineEnding(code)) {
       if (self.interrupt) {
         return ok(code);
       }
-
-      return effects.attempt(nonLazyLine, contentStart, afterOpening)(code);
     }
 
-    return nok(code);
+    return effects.attempt(nonLazyLine, contentStart, afterOpening)(code);
   }
 
   function afterOpening(code: Code) {
@@ -104,11 +116,6 @@ function tokenizeSpoilerContainer(
   }
 
   function contentStart(code: Code) {
-    if (code === codes.eof) {
-      effects.exit("spoilerContainer");
-      return ok(code);
-    }
-
     effects.enter("spoilerContainerContent");
     return lineStart(code);
   }
@@ -191,8 +198,6 @@ function tokenizeSpoilerContainer(
     );
 
     function closingPrefixAfter(code: Code) {
-      effects.enter("spoilerContainerFence");
-      effects.enter("spoilerContainerSequence");
       return closingSequence(code);
     }
 
@@ -204,13 +209,11 @@ function tokenizeSpoilerContainer(
       }
 
       if (size < sizeOpen) return nok(code);
-      effects.exit("spoilerContainerSequence");
       return factorySpace(effects, closingSequenceEnd, types.whitespace)(code);
     }
 
     function closingSequenceEnd(code: Code) {
       if (code === codes.eof || markdownLineEnding(code)) {
-        effects.exit("spoilerContainerFence");
         return ok(code);
       }
 
@@ -230,6 +233,7 @@ function tokenizeNonLazyLine(
   return start;
 
   function start(code: Code) {
+    console.log(code);
     assert(markdownLineEnding(code), "expected eol");
     effects.enter(types.lineEnding);
     effects.consume(code);

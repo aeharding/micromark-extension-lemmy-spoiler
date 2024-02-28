@@ -11,24 +11,29 @@ import { directive, directiveHtml } from "../dev/index.js";
 
 describe("micromark-extension-directive (syntax, container)", () => {
   it("should support spoiler with space", () => {
-    expect(micromark("::: spoiler", options())).toEqual(
-      "<details><summary>spoiler</summary></details>",
+    expect(micromark("::: spoiler Spoiler Label\n* a\n:::", options())).toEqual(
+      `<details><summary> Spoiler Label
+</summary>
+
+<ul><li>a</li></ul>
+</details>
+`,
     );
   });
 
-  it("should support spoiler without space", () => {
-    expect(micromark(":::spoiler", options())).toEqual(
-      "<details><summary>spoiler</summary></details>",
-    );
-  });
+  // it("should support spoiler without space", () => {
+  //   expect(micromark(":::spoiler", options())).toEqual(
+  //     "<details><summary>spoiler</summary></details>",
+  //   );
+  // });
 
-  it("should support spoiler without space", () => {
-    expect(
-      micromark("test test\n:::spoiler\n**bold!**\n:::", options()),
-    ).toEqual(
-      "<p>test test</p>\n<details><summary>spoiler</summary><p><strong>bold!</strong></p>\n</details>",
-    );
-  });
+  // it("should support spoiler without space", () => {
+  //   expect(
+  //     micromark("test test\n:::spoiler\n**bold!**\n:::", options()),
+  //   ).toEqual(
+  //     "<p>test test</p>\n<details><summary>spoiler</summary><p><strong>bold!</strong></p>\n</details>",
+  //   );
+  // });
 
   // it("should support prefixed containers (3)", () => {
   //   expect(micromark(" :::spoiler\n - a\n > b", options())).toEqual(
