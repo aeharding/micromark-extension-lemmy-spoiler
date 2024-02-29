@@ -42,7 +42,7 @@
  * @property {number | undefined} [_fenceCount]
  *   Private :)
  *
- * @typedef {'containerDirective' | 'leafDirective' | 'textDirective'} DirectiveType
+ * @typedef {'containerDirective'} DirectiveType
  *   Kind.
  */
 
@@ -72,19 +72,7 @@ export function directiveHtml(options) {
       directiveContainerLabel: enterLabel,
       directiveContainerContent() {
         this.buffer()
-      },
-
-      directiveLeaf() {
-        enter.call(this, 'leafDirective')
-      },
-      directiveLeafAttributes: enterAttributes,
-      directiveLeafLabel: enterLabel,
-
-      directiveText() {
-        enter.call(this, 'textDirective')
-      },
-      directiveTextAttributes: enterAttributes,
-      directiveTextLabel: enterLabel
+      }
     },
     exit: {
       directiveContainer: exit,
@@ -96,25 +84,7 @@ export function directiveHtml(options) {
       directiveContainerContent: exitContainerContent,
       directiveContainerFence: exitContainerFence,
       directiveContainerLabel: exitLabel,
-      directiveContainerName: exitName,
-
-      directiveLeaf: exit,
-      directiveLeafAttributeClassValue: exitAttributeClassValue,
-      directiveLeafAttributeIdValue: exitAttributeIdValue,
-      directiveLeafAttributeName: exitAttributeName,
-      directiveLeafAttributeValue: exitAttributeValue,
-      directiveLeafAttributes: exitAttributes,
-      directiveLeafLabel: exitLabel,
-      directiveLeafName: exitName,
-
-      directiveText: exit,
-      directiveTextAttributeClassValue: exitAttributeClassValue,
-      directiveTextAttributeIdValue: exitAttributeIdValue,
-      directiveTextAttributeName: exitAttributeName,
-      directiveTextAttributeValue: exitAttributeValue,
-      directiveTextAttributes: exitAttributes,
-      directiveTextLabel: exitLabel,
-      directiveTextName: exitName
+      directiveContainerName: exitName
     }
   }
 
@@ -301,7 +271,7 @@ export function directiveHtml(options) {
       found = result !== false
     }
 
-    if (!found && directive.type !== 'textDirective') {
+    if (!found) {
       this.setData('slurpOneLineEnding', true)
     }
   }
