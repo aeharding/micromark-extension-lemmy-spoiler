@@ -8,6 +8,7 @@ declare module 'micromark-util-types' {
     spoiler: 'spoiler'
     spoilerContent: 'spoilerContent'
     spoilerFence: 'spoilerFence'
+    spoilerKeyword: 'spoilerKeyword'
     spoilerName: 'spoilerName'
     spoilerSequence: 'spoilerSequence'
   }
