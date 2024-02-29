@@ -1,8 +1,8 @@
 import type {Attribute, Directive} from './lib/html.js'
 
-export {directive} from './lib/syntax.js'
+export {spoiler} from './lib/syntax.js'
 export {
-  directiveHtml,
+  spoilerHtml,
   type Directive,
   type Handle,
   type HtmlOptions

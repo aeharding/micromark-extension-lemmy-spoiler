@@ -1,28 +1,28 @@
 /**
  * @typedef {import('micromark-util-types').CompileContext} CompileContext
- * @typedef {import('micromark-extension-directive').HtmlOptions} HtmlOptions
- * @typedef {import('micromark-extension-directive').Handle} Handle
+ * @typedef {import('micromark-extension-lemmy-spoiler').HtmlOptions} HtmlOptions
+ * @typedef {import('micromark-extension-lemmy-spoiler').Handle} Handle
  */
 
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {micromark} from 'micromark'
 import {htmlVoidElements} from 'html-void-elements'
-import {directive, directiveHtml} from 'micromark-extension-directive'
+import {spoiler, spoilerHtml} from 'micromark-extension-lemmy-spoiler'
 
 const own = {}.hasOwnProperty
 
-test('micromark-extension-directive (core)', async function (t) {
+test('micromark-extension-lemmy-spoiler (core)', async function (t) {
   await t.test('should expose the public api', async function () {
     assert.deepEqual(
-      Object.keys(await import('micromark-extension-directive')).sort(),
-      ['directive', 'directiveHtml']
+      Object.keys(await import('micromark-extension-lemmy-spoiler')).sort(),
+      ['spoiler', 'spoilerHtml']
     )
   })
 })
 
-test('micromark-extension-directive (syntax, container)', async function (t) {
-  await t.test('should support a directive', async function () {
+test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t) {
+  await t.test('should support a spoiler', async function () {
     assert.equal(micromark(':::b', options()), '')
   })
 
@@ -178,7 +178,7 @@ test('micromark-extension-directive (syntax, container)', async function (t) {
     }
   )
 
-  await t.test('should support whitespace after directives', async function () {
+  await t.test('should support whitespace after spoilers', async function () {
     assert.equal(micromark(':::a{b=c} \t ', options()), '')
   })
 
@@ -262,12 +262,12 @@ test('micromark-extension-directive (syntax, container)', async function (t) {
     assert.equal(micromark(':::a\n\ta\n', options()), '')
   })
 
-  await t.test('should support an indented directive', async function () {
+  await t.test('should support an indented spoiler', async function () {
     assert.equal(micromark('  :::a\n  b\n  :::\nc', options()), '<p>c</p>')
   })
 
   await t.test(
-    'should still not close an indented directive when the “closing” fence is indented a tab size',
+    'should still not close an indented spoiler when the “closing” fence is indented a tab size',
     async function () {
       assert.equal(micromark('  :::a\n\t:::\nc', options()), '')
     }
@@ -479,8 +479,8 @@ test('micromark-extension-directive (syntax, container)', async function (t) {
   })
 })
 
-test('micromark-extension-directive (compile)', async function (t) {
-  await t.test('should support directives (youtube)', async function () {
+test('micromark-extension-lemmy-spoiler (compile)', async function (t) {
+  await t.test('should support spoilers (youtube)', async function () {
     assert.equal(
       micromark(
         [
@@ -504,28 +504,22 @@ test('micromark-extension-directive (compile)', async function (t) {
 })
 
 test('content', async function (t) {
-  await t.test(
-    'should support container directives in container directives',
-    async function () {
-      assert.equal(
-        micromark('::::div{.big}\n:::div{.small}\nText', options({'*': h})),
-        '<div class="big">\n<div class="small">\n<p>Text</p>\n</div>\n</div>'
-      )
-    }
-  )
+  await t.test('should support spoilers in spoilers', async function () {
+    assert.equal(
+      micromark('::::div{.big}\n:::div{.small}\nText', options({'*': h})),
+      '<div class="big">\n<div class="small">\n<p>Text</p>\n</div>\n</div>'
+    )
+  })
+
+  await t.test('should support lists in spoilerds', async function () {
+    assert.equal(
+      micromark(':::section\n* a\n:::', options({'*': h})),
+      '<section>\n<ul>\n<li>a</li>\n</ul>\n</section>'
+    )
+  })
 
   await t.test(
-    'should support lists in container directives',
-    async function () {
-      assert.equal(
-        micromark(':::section\n* a\n:::', options({'*': h})),
-        '<section>\n<ul>\n<li>a</li>\n</ul>\n</section>'
-      )
-    }
-  )
-
-  await t.test(
-    'should support lists w/ label brackets in container directives',
+    'should support lists w/ label brackets in spoilers',
     async function () {
       assert.equal(
         micromark(':::section[]\n* a\n:::', options({'*': h})),
@@ -535,7 +529,7 @@ test('content', async function (t) {
   )
 
   await t.test(
-    'should support lists w/ attribute braces in container directives',
+    'should support lists w/ attribute braces in spoilers',
     async function () {
       assert.equal(
         micromark(':::section{}\n* a\n:::', options({'*': h})),
@@ -545,7 +539,7 @@ test('content', async function (t) {
   )
 
   await t.test(
-    'should support lazy containers in an unclosed container directive',
+    'should support lazy containers in an unclosed spoiler',
     async function () {
       assert.equal(micromark(':::i\n- +\na', options()), '')
     }
@@ -617,9 +611,9 @@ function h(d) {
   this.tag('>')
 
   if (content) {
-    if (d.type === 'containerDirective') this.lineEndingIfNeeded()
+    this.lineEndingIfNeeded()
     this.raw(content)
-    if (d.type === 'containerDirective') this.lineEndingIfNeeded()
+    this.lineEndingIfNeeded()
   }
 
   if (!htmlVoidElements.includes(d.name)) this.tag('</' + d.name + '>')
@@ -632,7 +626,7 @@ function h(d) {
 function options(options) {
   return {
     allowDangerousHtml: true,
-    extensions: [directive()],
-    htmlExtensions: [directiveHtml(options)]
+    extensions: [spoiler()],
+    htmlExtensions: [spoilerHtml(options)]
   }
 }

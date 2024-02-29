@@ -61,7 +61,7 @@ const own = {}.hasOwnProperty
  *   Extension for `micromark` that can be passed in `htmlExtensions`, to
  *   support directives when serializing to HTML.
  */
-export function directiveHtml(options) {
+export function spoilerHtml(options) {
   const options_ = options || {}
   return {
     enter: {
