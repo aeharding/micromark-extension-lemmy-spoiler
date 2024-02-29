@@ -3,7 +3,7 @@
  */
 
 import {codes} from 'micromark-util-symbol'
-import {directiveContainer} from './directive-container.js'
+import {spoiler as spoilerExtension} from './spoiler.js'
 
 /**
  * Create an extension for `micromark` to enable directive syntax.
@@ -14,6 +14,6 @@ import {directiveContainer} from './directive-container.js'
  */
 export function spoiler() {
   return {
-    flow: {[codes.colon]: [directiveContainer]}
+    flow: {[codes.colon]: [spoilerExtension]}
   }
 }

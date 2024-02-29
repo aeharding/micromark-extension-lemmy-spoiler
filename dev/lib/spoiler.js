@@ -15,8 +15,8 @@ import {factoryLabel} from './factory-label.js'
 import {factoryName} from './factory-name.js'
 
 /** @type {Construct} */
-export const directiveContainer = {
-  tokenize: tokenizeDirectiveContainer,
+export const spoiler = {
+  tokenize: tokenizeSpoiler,
   concrete: true
 }
 
@@ -28,7 +28,7 @@ const nonLazyLine = {tokenize: tokenizeNonLazyLine, partial: true}
  * @this {TokenizeContext}
  * @type {Tokenizer}
  */
-function tokenizeDirectiveContainer(effects, ok, nok) {
+function tokenizeSpoiler(effects, ok, nok) {
   const self = this
   const tail = self.events[self.events.length - 1]
   const initialSize =
@@ -44,9 +44,9 @@ function tokenizeDirectiveContainer(effects, ok, nok) {
   /** @type {State} */
   function start(code) {
     assert(code === codes.colon, 'expected `:`')
-    effects.enter('directiveContainer')
-    effects.enter('directiveContainerFence')
-    effects.enter('directiveContainerSequence')
+    effects.enter('spoiler')
+    effects.enter('spoilerFence')
+    effects.enter('spoilerSequence')
     return sequenceOpen(code)
   }
 
@@ -62,14 +62,8 @@ function tokenizeDirectiveContainer(effects, ok, nok) {
       return nok(code)
     }
 
-    effects.exit('directiveContainerSequence')
-    return factoryName.call(
-      self,
-      effects,
-      afterName,
-      nok,
-      'directiveContainerName'
-    )(code)
+    effects.exit('spoilerSequence')
+    return factoryName.call(self, effects, afterName, nok, 'spoilerName')(code)
   }
 
   /** @type {State} */
@@ -93,7 +87,7 @@ function tokenizeDirectiveContainer(effects, ok, nok) {
 
   /** @type {State} */
   function openAfter(code) {
-    effects.exit('directiveContainerFence')
+    effects.exit('spoilerFence')
 
     if (code === codes.eof) {
       return afterOpening(code)
@@ -112,18 +106,18 @@ function tokenizeDirectiveContainer(effects, ok, nok) {
 
   /** @type {State} */
   function afterOpening(code) {
-    effects.exit('directiveContainer')
+    effects.exit('spoiler')
     return ok(code)
   }
 
   /** @type {State} */
   function contentStart(code) {
     if (code === codes.eof) {
-      effects.exit('directiveContainer')
+      effects.exit('spoiler')
       return ok(code)
     }
 
-    effects.enter('directiveContainerContent')
+    effects.enter('spoilerContent')
     return lineStart(code)
   }
 
@@ -190,8 +184,8 @@ function tokenizeDirectiveContainer(effects, ok, nok) {
 
   /** @type {State} */
   function after(code) {
-    effects.exit('directiveContainerContent')
-    effects.exit('directiveContainer')
+    effects.exit('spoilerContent')
+    effects.exit('spoiler')
     return ok(code)
   }
 
@@ -211,8 +205,8 @@ function tokenizeDirectiveContainer(effects, ok, nok) {
 
     /** @type {State} */
     function closingPrefixAfter(code) {
-      effects.enter('directiveContainerFence')
-      effects.enter('directiveContainerSequence')
+      effects.enter('spoilerFence')
+      effects.enter('spoilerSequence')
       return closingSequence(code)
     }
 
@@ -225,14 +219,14 @@ function tokenizeDirectiveContainer(effects, ok, nok) {
       }
 
       if (size < sizeOpen) return nok(code)
-      effects.exit('directiveContainerSequence')
+      effects.exit('spoilerSequence')
       return factorySpace(effects, closingSequenceEnd, types.whitespace)(code)
     }
 
     /** @type {State} */
     function closingSequenceEnd(code) {
       if (code === codes.eof || markdownLineEnding(code)) {
-        effects.exit('directiveContainerFence')
+        effects.exit('spoilerFence')
         return ok(code)
       }
 
@@ -251,9 +245,9 @@ function tokenizeLabel(effects, ok, nok) {
     effects,
     ok,
     nok,
-    'directiveContainerLabel',
-    'directiveContainerLabelMarker',
-    'directiveContainerLabelString',
+    'spoilerLabel',
+    'spoilerLabelMarker',
+    'spoilerLabelString',
     true
   )
 }
@@ -268,17 +262,17 @@ function tokenizeAttributes(effects, ok, nok) {
     effects,
     ok,
     nok,
-    'directiveContainerAttributes',
-    'directiveContainerAttributesMarker',
-    'directiveContainerAttribute',
-    'directiveContainerAttributeId',
-    'directiveContainerAttributeClass',
-    'directiveContainerAttributeName',
-    'directiveContainerAttributeInitializerMarker',
-    'directiveContainerAttributeValueLiteral',
-    'directiveContainerAttributeValue',
-    'directiveContainerAttributeValueMarker',
-    'directiveContainerAttributeValueData',
+    'spoilerAttributes',
+    'spoilerAttributesMarker',
+    'spoilerAttribute',
+    'spoilerAttributeId',
+    'spoilerAttributeClass',
+    'spoilerAttributeName',
+    'spoilerAttributeInitializerMarker',
+    'spoilerAttributeValueLiteral',
+    'spoilerAttributeValue',
+    'spoilerAttributeValueMarker',
+    'spoilerAttributeValueData',
     true
   )
 }
