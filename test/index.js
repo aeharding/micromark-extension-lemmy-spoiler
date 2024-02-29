@@ -18,17 +18,30 @@ test('micromark-extension-lemmy-spoiler (core)', async function (t) {
 
 test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t) {
   await t.test('should support a spoiler', async function () {
-    assert.equal(micromark(':::spoiler hi', options()), '<details></details>')
+    assert.equal(
+      micromark(':::spoiler hi', options()),
+      '<details>\n<summary>hi</summary>\n</details>'
+    )
+  })
+
+  await t.test('escapes', async function () {
+    assert.equal(
+      micromark(':::spoiler <hi></hi>', options()),
+      '<details>\n<summary>&lt;hi&gt;&lt;/hi&gt;</summary>\n</details>'
+    )
   })
 
   await t.test('should support a spoiler with space', async function () {
-    assert.equal(micromark('::: spoiler hi', options()), '<details></details>')
+    assert.equal(
+      micromark('::: spoiler hi', options()),
+      '<details>\n<summary>hi</summary>\n</details>'
+    )
   })
 
   await t.test('should support a spoiler with many spaces', async function () {
     assert.equal(
       micromark(':::    spoiler hi', options()),
-      '<details></details>'
+      '<details>\n<summary>hi</summary>\n</details>'
     )
   })
 
@@ -52,7 +65,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test('should support any characters in name', async function () {
     assert.equal(
       micromark(':::spoiler -#Hi#$(*@)_', options()),
-      '<details></details>'
+      '<details>\n<summary>-#Hi#$(*@)_</summary>\n</details>'
     )
   })
 
@@ -95,7 +108,10 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test(
     'should support three colons followed by an alpha',
     async function () {
-      assert.equal(micromark(':::spoiler hi', options()), '<details></details>')
+      assert.equal(
+        micromark(':::spoiler hi', options()),
+        '<details>\n<summary>hi</summary>\n</details>'
+      )
     }
   )
 
@@ -116,18 +132,21 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test('should support whitespace after spoilers', async function () {
     assert.equal(
       micromark(':::spoiler hi \t ', options()),
-      '<details></details>'
+      '<details>\n<summary>hi</summary>\n</details>'
     )
   })
 
   await t.test('should support no closing fence', async function () {
-    assert.equal(micromark(':::spoiler hi\n', options()), '<details></details>')
+    assert.equal(
+      micromark(':::spoiler hi\n', options()),
+      '<details>\n<summary>hi</summary>\n</details>'
+    )
   })
 
   await t.test('should support an immediate closing fence', async function () {
     assert.equal(
       micromark(':::spoiler hi\n:::', options()),
-      '<details></details>'
+      '<details>\n<summary>hi</summary>\n</details>'
     )
   })
 
@@ -136,7 +155,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n:::\nb', options()),
-        '<details></details>\n<p>b</p>'
+        '<details>\n<summary>hi</summary>\n</details>\n<p>b</p>'
       )
     }
   )
@@ -146,7 +165,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n::\nb', options()),
-        '<details>\n<p>::\nb</p>\n</details>'
+        '<details>\n<summary>hi</summary>\n<p>::\nb</p>\n</details>'
       )
     }
   )
@@ -156,7 +175,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n::::\nb', options()),
-        '<details></details>\n<p>b</p>'
+        '<details>\n<summary>hi</summary>\n</details>\n<p>b</p>'
       )
     }
   )
@@ -164,7 +183,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test('should support more opening colons', async function () {
     assert.equal(
       micromark('::::spoiler hi\n::::\nb', options()),
-      '<details></details>\n<p>b</p>'
+      '<details>\n<summary>hi</summary>\n</details>\n<p>b</p>'
     )
   })
 
@@ -173,7 +192,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::::spoiler hi\n::::\nb', options()),
-        '<details>\n<p>::::\nb</p>\n</details>'
+        '<details>\n<summary>hi</summary>\n<p>::::\nb</p>\n</details>'
       )
     }
   )
@@ -183,7 +202,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n::: \t\nc', options()),
-        '<details></details>\n<p>c</p>'
+        '<details>\n<summary>hi</summary>\n</details>\n<p>c</p>'
       )
     }
   )
@@ -193,7 +212,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n::: b\nc', options()),
-        '<details>\n<p>::: b\nc</p>\n</details>'
+        '<details>\n<summary>hi</summary>\n<p>::: b\nc</p>\n</details>'
       )
     }
   )
@@ -201,7 +220,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test('should close w/ an indented closing fence', async function () {
     assert.equal(
       micromark(':::spoiler hi\n  :::\nc', options()),
-      '<details></details>\n<p>c</p>'
+      '<details>\n<summary>hi</summary>\n</details>\n<p>c</p>'
     )
   })
 
@@ -210,7 +229,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n\t:::\nc', options()),
-        '<details>\n<pre><code>:::\n</code></pre>\n<p>c</p>\n</details>'
+        '<details>\n<summary>hi</summary>\n<pre><code>:::\n</code></pre>\n<p>c</p>\n</details>'
       )
     }
   )
@@ -220,7 +239,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n     :::\nc', options()),
-        '<details>\n<pre><code> :::\n</code></pre>\n<p>c</p>\n</details>'
+        '<details>\n<summary>hi</summary>\n<pre><code> :::\n</code></pre>\n<p>c</p>\n</details>'
       )
     }
   )
@@ -228,21 +247,21 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test('should support blank lines in content', async function () {
     assert.equal(
       micromark(':::spoiler hi\n\n  \n\ta', options()),
-      '<details>\n<pre><code>a\n</code></pre>\n</details>'
+      '<details>\n<summary>hi</summary>\n<pre><code>a\n</code></pre>\n</details>'
     )
   })
 
   await t.test('should support an EOL EOF', async function () {
     assert.equal(
       micromark(':::spoiler hi\n\ta\n', options()),
-      '<details>\n<pre><code>a\n</code></pre>\n</details>'
+      '<details>\n<summary>hi</summary>\n<pre><code>a\n</code></pre>\n</details>'
     )
   })
 
   await t.test('should support an indented spoiler', async function () {
     assert.equal(
       micromark('  :::spoiler hi\n  b\n  :::\nc', options()),
-      '<details>\n<p>b</p>\n</details>\n<p>c</p>'
+      '<details>\n<summary>hi</summary>\n<p>b</p>\n</details>\n<p>c</p>'
     )
   })
 
@@ -251,7 +270,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark('  :::spoiler hi\n\t:::\nc', options()),
-        '<details>\n<p>:::\nc</p>\n</details>'
+        '<details>\n<summary>hi</summary>\n<p>:::\nc</p>\n</details>'
       )
     }
   )
@@ -261,7 +280,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n:::\n>a', options()),
-        '<details></details>\n<blockquote>\n<p>a</p>\n</blockquote>'
+        '<details>\n<summary>hi</summary>\n</details>\n<blockquote>\n<p>a</p>\n</blockquote>'
       )
     }
   )
@@ -271,7 +290,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n:::\n```js\na', options()),
-        '<details></details>\n<pre><code class="language-js">a\n</code></pre>\n'
+        '<details>\n<summary>hi</summary>\n</details>\n<pre><code class="language-js">a\n</code></pre>\n'
       )
     }
   )
@@ -281,7 +300,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n:::\n    a', options()),
-        '<details></details>\n<pre><code>a\n</code></pre>'
+        '<details>\n<summary>hi</summary>\n</details>\n<pre><code>a\n</code></pre>'
       )
     }
   )
@@ -291,7 +310,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n:::\n[a]: b', options()),
-        '<details></details>\n'
+        '<details>\n<summary>hi</summary>\n</details>\n'
       )
     }
   )
@@ -301,7 +320,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n:::\n# a', options()),
-        '<details></details>\n<h1>a</h1>'
+        '<details>\n<summary>hi</summary>\n</details>\n<h1>a</h1>'
       )
     }
   )
@@ -311,7 +330,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n:::\na\n=', options()),
-        '<details></details>\n<h1>a</h1>'
+        '<details>\n<summary>hi</summary>\n</details>\n<h1>a</h1>'
       )
     }
   )
@@ -319,21 +338,21 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test('should support html after a spoiler', async function () {
     assert.equal(
       micromark(':::spoiler hi\n:::\n<!-->', options()),
-      '<details></details>\n<!-->'
+      '<details>\n<summary>hi</summary>\n</details>\n<!-->'
     )
   })
 
   await t.test('should support a list after a spoiler', async function () {
     assert.equal(
       micromark(':::spoiler hi\n:::\n* a', options()),
-      '<details></details>\n<ul>\n<li>a</li>\n</ul>'
+      '<details>\n<summary>hi</summary>\n</details>\n<ul>\n<li>a</li>\n</ul>'
     )
   })
 
   await t.test('should support a paragraph after a spoiler', async function () {
     assert.equal(
       micromark(':::spoiler hi\n:::\na', options()),
-      '<details></details>\n<p>a</p>'
+      '<details>\n<summary>hi</summary>\n</details>\n<p>a</p>'
     )
   })
 
@@ -342,7 +361,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n:::\n***', options()),
-        '<details></details>\n<hr />'
+        '<details>\n<summary>hi</summary>\n</details>\n<hr />'
       )
     }
   )
@@ -352,7 +371,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark('>a\n:::spoiler hi\nb', options()),
-        '<blockquote>\n<p>a</p>\n</blockquote>\n<details>\n<p>b</p>\n</details>'
+        '<blockquote>\n<p>a</p>\n</blockquote>\n<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
       )
     }
   )
@@ -362,7 +381,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark('```js\na\n```\n:::spoiler hi\nb', options()),
-        '<pre><code class="language-js">a\n</code></pre>\n<details>\n<p>b</p>\n</details>'
+        '<pre><code class="language-js">a\n</code></pre>\n<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
       )
     }
   )
@@ -372,7 +391,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark('    a\n:::spoiler hi\nb', options()),
-        '<pre><code>a\n</code></pre>\n<details>\n<p>b</p>\n</details>'
+        '<pre><code>a\n</code></pre>\n<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
       )
     }
   )
@@ -382,7 +401,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark('[a]: b\n:::spoiler hi\nb', options()),
-        '<details>\n<p>b</p>\n</details>'
+        '<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
       )
     }
   )
@@ -392,7 +411,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark('# a\n:::spoiler hi\nb', options()),
-        '<h1>a</h1>\n<details>\n<p>b</p>\n</details>'
+        '<h1>a</h1>\n<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
       )
     }
   )
@@ -402,7 +421,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark('a\n=\n:::spoiler hi\nb', options()),
-        '<h1>a</h1>\n<details>\n<p>b</p>\n</details>'
+        '<h1>a</h1>\n<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
       )
     }
   )
@@ -410,14 +429,14 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test('should support html before a spoiler', async function () {
     assert.equal(
       micromark('<!-->\n:::spoiler hi\nb', options()),
-      '<!-->\n<details>\n<p>b</p>\n</details>'
+      '<!-->\n<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
     )
   })
 
   await t.test('should support a list before a spoiler', async function () {
     assert.equal(
       micromark('* a\n:::spoiler hi\nb', options()),
-      '<ul>\n<li>a</li>\n</ul>\n<details>\n<p>b</p>\n</details>'
+      '<ul>\n<li>a</li>\n</ul>\n<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
     )
   })
 
@@ -426,7 +445,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark('a\n:::spoiler hi\nb', options()),
-        '<p>a</p>\n<details>\n<p>b</p>\n</details>'
+        '<p>a</p>\n<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
       )
     }
   )
@@ -436,7 +455,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     async function () {
       assert.equal(
         micromark('***\n:::spoiler hi\nb', options()),
-        '<hr />\n<details>\n<p>b</p>\n</details>'
+        '<hr />\n<details>\n<summary>hi</summary>\n<p>b</p>\n</details>'
       )
     }
   )
@@ -444,56 +463,56 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test('should support prefixed containers (1)', async function () {
     assert.equal(
       micromark(' :::spoiler hi\n ', options()),
-      '<details></details>'
+      '<details>\n<summary>hi</summary>\n</details>'
     )
   })
 
   await t.test('should support prefixed containers (2)', async function () {
     assert.equal(
       micromark(' :::spoiler hi\n - a', options()),
-      '<details>\n<ul>\n<li>a</li>\n</ul>\n</details>'
+      '<details>\n<summary>hi</summary>\n<ul>\n<li>a</li>\n</ul>\n</details>'
     )
   })
 
   await t.test('should support prefixed containers (3)', async function () {
     assert.equal(
       micromark(' :::spoiler hi\n - a\n > b', options()),
-      '<details>\n<ul>\n<li>a</li>\n</ul>\n<blockquote>\n<p>b</p>\n</blockquote>\n</details>'
+      '<details>\n<summary>hi</summary>\n<ul>\n<li>a</li>\n</ul>\n<blockquote>\n<p>b</p>\n</blockquote>\n</details>'
     )
   })
 
   await t.test('should support prefixed containers (4)', async function () {
     assert.equal(
       micromark(' :::spoiler hi\n - a\n > b\n :::', options()),
-      '<details>\n<ul>\n<li>a</li>\n</ul>\n<blockquote>\n<p>b</p>\n</blockquote>\n</details>'
+      '<details>\n<summary>hi</summary>\n<ul>\n<li>a</li>\n</ul>\n<blockquote>\n<p>b</p>\n</blockquote>\n</details>'
     )
   })
 
   await t.test('should not support lazyness (1)', async function () {
     assert.equal(
       micromark('> :::spoiler hi\nb', options()),
-      '<blockquote><details></details>\n</blockquote>\n<p>b</p>'
+      '<blockquote><details>\n<summary>hi</summary>\n</details>\n</blockquote>\n<p>b</p>'
     )
   })
 
   await t.test('should not support lazyness (2)', async function () {
     assert.equal(
       micromark('> :::spoiler hi\n> b\nc', options()),
-      '<blockquote><details>\n<p>b</p>\n</details>\n</blockquote>\n<p>c</p>'
+      '<blockquote><details>\n<summary>hi</summary>\n<p>b</p>\n</details>\n</blockquote>\n<p>c</p>'
     )
   })
 
   await t.test('should not support lazyness (3)', async function () {
     assert.equal(
       micromark('> a\n:::spoiler hi', options()),
-      '<blockquote>\n<p>a</p>\n</blockquote>\n<details></details>'
+      '<blockquote>\n<p>a</p>\n</blockquote>\n<details>\n<summary>hi</summary>\n</details>'
     )
   })
 
   await t.test('should not support lazyness (4)', async function () {
     assert.equal(
       micromark('> :::spoiler hi\n:::', options()),
-      '<blockquote><details></details>\n</blockquote>\n<p>:::</p>'
+      '<blockquote><details>\n<summary>hi</summary>\n</details>\n</blockquote>\n<p>:::</p>'
     )
   })
 })
@@ -502,14 +521,14 @@ test('content', async function (t) {
   await t.test('should support spoilers in spoilers', async function () {
     assert.equal(
       micromark('::::spoiler hi1\n:::spoiler hi2\nText', options()),
-      '<details>\n<details>\n<p>Text</p>\n</details>\n</details>'
+      '<details>\n<summary>hi1</summary>\n<details>\n<summary>hi2</summary>\n<p>Text</p>\n</details>\n</details>'
     )
   })
 
   await t.test('should support lists in spoilers', async function () {
     assert.equal(
       micromark(':::spoiler hi\n* a\n:::', options()),
-      '<details>\n<ul>\n<li>a</li>\n</ul>\n</details>'
+      '<details>\n<summary>hi</summary>\n<ul>\n<li>a</li>\n</ul>\n</details>'
     )
   })
 
@@ -518,7 +537,7 @@ test('content', async function (t) {
     async function () {
       assert.equal(
         micromark(':::spoiler hi\n- +\na', options()),
-        '<details>\n<ul>\n<li>\n<ul>\n<li></li>\n</ul>\n</li>\n</ul>\n<p>a</p>\n</details>'
+        '<details>\n<summary>hi</summary>\n<ul>\n<li>\n<ul>\n<li></li>\n</ul>\n</li>\n</ul>\n<p>a</p>\n</details>'
       )
     }
   )

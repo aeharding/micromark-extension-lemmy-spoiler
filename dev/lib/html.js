@@ -64,7 +64,11 @@ export function spoilerHtml() {
   function exitName(token) {
     const stack = this.getData('spoilerStack')
     assert(stack, 'expected spoiler stack')
-    stack[stack.length - 1].name = this.sliceSerialize(token)
+
+    const rawName = this.sliceSerialize(token)
+
+    // Is there a way to do trimEnd in spoiler.js?
+    stack[stack.length - 1].name = this.encode(rawName.trimEnd())
   }
 
   /**
@@ -105,11 +109,18 @@ export function spoilerHtml() {
 
     this.tag('<details>')
 
+    this.lineEndingIfNeeded()
+
+    this.tag('<summary>')
+    this.raw(spoiler.name)
+    this.tag('</summary>')
+
     if (spoiler.content) {
       this.lineEndingIfNeeded()
       this.raw(spoiler.content)
-      this.lineEndingIfNeeded()
     }
+
+    this.lineEndingIfNeeded()
 
     this.tag('</details>')
   }
