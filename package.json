@@ -1,28 +1,19 @@
 {
-  "name": "micromark-extension-directive",
+  "name": "micromark-extension-lemmy-spoiler",
   "version": "3.0.0",
-  "description": "micromark extension to support generic directives (`:cite[smith04]`)",
-  "license": "MIT",
+  "description": "micromark extension to support lemmy spoiler format",
+  "license": "AGPL-3.0-only",
   "keywords": [
     "micromark",
     "micromark-extension",
-    "generic",
-    "directive",
-    "container",
+    "lemmy",
+    "spoiler",
     "extension",
     "markdown",
     "unified"
   ],
-  "repository": "micromark/micromark-extension-directive",
-  "bugs": "https://github.com/micromark/micromark-extension-directive/issues",
-  "funding": {
-    "type": "opencollective",
-    "url": "https://opencollective.com/unified"
-  },
-  "author": "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)",
-  "contributors": [
-    "Titus Wormer <tituswormer@gmail.com> (https://wooorm.com)"
-  ],
+  "repository": "aeharding/micromark-extension-lemmy-spoiler",
+  "bugs": "https://github.com/aeharding/micromark-extension-lemmy-spoiler/issues",
   "sideEffects": false,
   "type": "module",
   "exports": {

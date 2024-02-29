@@ -12,7 +12,7 @@ import {directiveContainer} from './directive-container.js'
  *   Extension for `micromark` that can be passed in `extensions`, to
  *   enable directive syntax.
  */
-export function directive() {
+export function spoiler() {
   return {
     flow: {[codes.colon]: [directiveContainer]}
   }
