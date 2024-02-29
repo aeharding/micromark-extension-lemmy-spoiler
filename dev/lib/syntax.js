@@ -6,11 +6,11 @@ import {codes} from 'micromark-util-symbol'
 import {spoiler as spoilerExtension} from './spoiler.js'
 
 /**
- * Create an extension for `micromark` to enable directive syntax.
+ * Create an extension for `micromark` to enable lemmy spoiler syntax.
  *
  * @returns {Extension}
  *   Extension for `micromark` that can be passed in `extensions`, to
- *   enable directive syntax.
+ *   enable lemmy spoiler syntax.
  */
 export function spoiler() {
   return {
