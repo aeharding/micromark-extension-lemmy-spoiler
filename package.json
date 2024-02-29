@@ -1,6 +1,6 @@
 {
   "name": "micromark-extension-lemmy-spoiler",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "description": "micromark extension to support lemmy spoiler format",
   "license": "AGPL-3.0-only",
   "keywords": [
