@@ -68,11 +68,11 @@ function tokenizeSpoiler(effects, ok, nok) {
 
   /** @type {State} */
   function afterSequenceOpen(code) {
-    return factorySpace(effects, nameStart, types.whitespace)(code)
+    return factorySpace(effects, keywordStart, types.whitespace)(code)
   }
 
   /** @type {State} */
-  function nameStart(code) {
+  function keywordStart(code) {
     if (sizeKeyword === 0) {
       effects.enter('spoilerName')
     }
@@ -80,18 +80,18 @@ function tokenizeSpoiler(effects, ok, nok) {
     if (code === spoilerKeyword.codePointAt(sizeKeyword)) {
       effects.consume(code)
       sizeKeyword++
-      return nameStart
+      return keywordStart
     }
 
     if (sizeKeyword < spoilerKeyword.length) return nok(code)
 
     effects.exit('spoilerName')
 
-    return afterName(code)
+    return afterKeyword(code)
   }
 
   /** @type {State} */
-  function afterName(code) {
+  function afterKeyword(code) {
     return factorySpace(effects, openAfter, types.whitespace)(code)
   }
 
