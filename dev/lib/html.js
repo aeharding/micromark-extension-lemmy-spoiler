@@ -5,11 +5,6 @@
  */
 
 /**
- * @typedef {[string, string]} Attribute
- *   Internal tuple representing an attribute.
- */
-
-/**
  * @typedef {Record<string, Handle>} HtmlOptions
  *   Configuration.
  *
@@ -33,10 +28,6 @@
  *   Kind.
  * @property {string} name
  *   Name of spoiler.
- * @property {string | undefined} [label]
- *   Compiled HTML content that was in `[brackets]`.
- * @property {Record<string, string> | undefined} [attributes]
- *   Object w/ HTML attributes.
  * @property {string | undefined} [content]
  *   Compiled HTML content inside spoiler.
  * @property {number | undefined} [_fenceCount]
@@ -47,7 +38,6 @@
  */
 
 import {ok as assert} from 'devlop'
-import {parseEntities} from 'parse-entities'
 
 const own = {}.hasOwnProperty
 
@@ -68,22 +58,14 @@ export function spoilerHtml(options) {
       spoiler() {
         enter.call(this, 'spoiler')
       },
-      spoilerAttributes: enterAttributes,
-      spoilerLabel: enterLabel,
       spoilerContent() {
         this.buffer()
       }
     },
     exit: {
       spoiler: exit,
-      spoilerAttributeClassValue: exitAttributeClassValue,
-      spoilerAttributeIdValue: exitAttributeIdValue,
-      spoilerAttributeName: exitAttributeName,
-      spoilerAttributeValue: exitAttributeValue,
-      spoilerAttributes: exitAttributes,
       spoilerContent: exitContainerContent,
       spoilerFence: exitContainerFence,
-      spoilerLabel: exitLabel,
       spoilerName: exitName
     }
   }
@@ -106,119 +88,6 @@ export function spoilerHtml(options) {
     const stack = this.getData('spoilerStack')
     assert(stack, 'expected spoiler stack')
     stack[stack.length - 1].name = this.sliceSerialize(token)
-  }
-
-  /**
-   * @this {CompileContext}
-   * @type {_Handle}
-   */
-  function enterLabel() {
-    this.buffer()
-  }
-
-  /**
-   * @this {CompileContext}
-   * @type {_Handle}
-   */
-  function exitLabel() {
-    const data = this.resume()
-    const stack = this.getData('spoilerStack')
-    assert(stack, 'expected spoiler stack')
-    stack[stack.length - 1].label = data
-  }
-
-  /**
-   * @this {CompileContext}
-   * @type {_Handle}
-   */
-  function enterAttributes() {
-    this.buffer()
-    this.setData('spoilerAttributes', [])
-  }
-
-  /**
-   * @this {CompileContext}
-   * @type {_Handle}
-   */
-  function exitAttributeIdValue(token) {
-    const attributes = this.getData('spoilerAttributes')
-    assert(attributes, 'expected attributes')
-    attributes.push([
-      'id',
-      parseEntities(this.sliceSerialize(token), {
-        attribute: true
-      })
-    ])
-  }
-
-  /**
-   * @this {CompileContext}
-   * @type {_Handle}
-   */
-  function exitAttributeClassValue(token) {
-    const attributes = this.getData('spoilerAttributes')
-    assert(attributes, 'expected attributes')
-
-    attributes.push([
-      'class',
-      parseEntities(this.sliceSerialize(token), {
-        attribute: true
-      })
-    ])
-  }
-
-  /**
-   * @this {CompileContext}
-   * @type {_Handle}
-   */
-  function exitAttributeName(token) {
-    // Attribute names in CommonMark are significantly limited, so character
-    // references can’t exist.
-    const attributes = this.getData('spoilerAttributes')
-    assert(attributes, 'expected attributes')
-
-    attributes.push([this.sliceSerialize(token), ''])
-  }
-
-  /**
-   * @this {CompileContext}
-   * @type {_Handle}
-   */
-  function exitAttributeValue(token) {
-    const attributes = this.getData('spoilerAttributes')
-    assert(attributes, 'expected attributes')
-    attributes[attributes.length - 1][1] = parseEntities(
-      this.sliceSerialize(token),
-      {attribute: true}
-    )
-  }
-
-  /**
-   * @this {CompileContext}
-   * @type {_Handle}
-   */
-  function exitAttributes() {
-    const stack = this.getData('spoilerStack')
-    assert(stack, 'expected spoiler stack')
-    const attributes = this.getData('spoilerAttributes')
-    assert(attributes, 'expected attributes')
-    /** @type {Spoiler['attributes']} */
-    const cleaned = {}
-    let index = -1
-
-    while (++index < attributes.length) {
-      const attribute = attributes[index]
-
-      if (attribute[0] === 'class' && cleaned.class) {
-        cleaned.class += ' ' + attribute[1]
-      } else {
-        cleaned[attribute[0]] = attribute[1]
-      }
-    }
-
-    this.resume()
-    this.setData('spoilerAttributes')
-    stack[stack.length - 1].attributes = cleaned
   }
 
   /**
@@ -260,11 +129,6 @@ export function spoilerHtml(options) {
     let result
 
     assert(spoiler.name, 'expected `name`')
-
-    if (own.call(options_, spoiler.name)) {
-      result = options_[spoiler.name].call(this, spoiler)
-      found = result !== false
-    }
 
     if (!found && own.call(options_, '*')) {
       result = options_['*'].call(this, spoiler)

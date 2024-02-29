@@ -10,8 +10,6 @@ import {micromark} from 'micromark'
 import {htmlVoidElements} from 'html-void-elements'
 import {spoiler, spoilerHtml} from 'micromark-extension-lemmy-spoiler'
 
-const own = {}.hasOwnProperty
-
 test('micromark-extension-lemmy-spoiler (core)', async function (t) {
   await t.test('should expose the public api', async function () {
     assert.deepEqual(
@@ -81,125 +79,8 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     }
   )
 
-  await t.test(
-    'should not support a name followed by an unclosed `[`',
-    async function () {
-      assert.equal(micromark(':::spoiler[', options()), '<p>:::spoiler[</p>')
-    }
-  )
-
-  await t.test(
-    'should not support a name followed by an unclosed `{`',
-    async function () {
-      assert.equal(micromark(':::spoiler{', options()), '<p>:::spoiler{</p>')
-    }
-  )
-
-  await t.test(
-    'should not support a name followed by an unclosed `[` w/ content',
-    async function () {
-      assert.equal(micromark(':::spoiler[b', options()), '<p>:::spoiler[b</p>')
-    }
-  )
-
-  await t.test(
-    'should not support a name followed by an unclosed `{` w/ content',
-    async function () {
-      assert.equal(micromark(':::spoiler{b', options()), '<p>:::spoiler{b</p>')
-    }
-  )
-
-  await t.test('should support an empty label', async function () {
-    assert.equal(micromark(':::spoiler[]', options()), '')
-  })
-
-  await t.test('should support a whitespace only label', async function () {
-    assert.equal(micromark(':::spoiler[ \t]', options()), '')
-  })
-
-  await t.test('should not support an eol in an label', async function () {
-    assert.equal(
-      micromark(':::spoiler[\n]', options()),
-      '<p>:::spoiler[\n]</p>'
-    )
-  })
-
-  await t.test('should support content in an label', async function () {
-    assert.equal(micromark(':::spoiler[a b c]', options()), '')
-  })
-
-  await t.test('should support markdown in an label', async function () {
-    assert.equal(micromark(':::spoiler[a *b* c]', options()), '')
-  })
-
-  await t.test('should not support content after a label', async function () {
-    assert.equal(
-      micromark(':::spoiler[]asd', options()),
-      '<p>:::spoiler[]asd</p>'
-    )
-  })
-
-  await t.test('should support empty attributes', async function () {
-    assert.equal(micromark(':::spoiler{}', options()), '')
-  })
-
-  await t.test('should support whitespace only attributes', async function () {
-    assert.equal(micromark(':::spoiler{ \t}', options()), '')
-  })
-
-  await t.test('should not support an eol in attributes', async function () {
-    assert.equal(
-      micromark(':::spoiler{\n}', options()),
-      '<p>:::spoiler{\n}</p>'
-    )
-  })
-
-  await t.test('should support attributes', async function () {
-    assert.equal(micromark(':::spoiler{a b c}', options()), '')
-  })
-
-  await t.test(
-    'should not support EOLs around initializers',
-    async function () {
-      assert.equal(
-        micromark(':::spoiler{f  =\rg}', options()),
-        '<p>:::spoiler{f  =\rg}</p>'
-      )
-    }
-  )
-
-  await t.test(
-    'should not support an EOF in a quoted attribute value',
-    async function () {
-      assert.equal(
-        micromark(':::spoiler{b="c', options()),
-        '<p>:::spoiler{b=&quot;c</p>'
-      )
-    }
-  )
-
-  await t.test(
-    'should not support EOLs in quoted attribute values',
-    async function () {
-      assert.equal(
-        micromark(':::spoiler{b="\nc\r  d"}', options()),
-        '<p>:::spoiler{b=&quot;\nc\rd&quot;}</p>'
-      )
-    }
-  )
-
-  await t.test(
-    'should not support an EOF after a quoted attribute value',
-    async function () {
-      assert.equal(
-        micromark(':::spoiler{b="c"', options()),
-        '<p>:::spoiler{b=&quot;c&quot;</p>'
-      )
-    }
-  )
-
   await t.test('should support whitespace after spoilers', async function () {
-    assert.equal(micromark(':::spoiler{b=c} \t ', options()), '')
+    assert.equal(micromark(':::spoiler \t ', options()), '')
   })
 
   await t.test('should support no closing fence', async function () {
@@ -508,11 +389,8 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
 test('content', async function (t) {
   await t.test('should support spoilers in spoilers', async function () {
     assert.equal(
-      micromark(
-        '::::spoiler{.big}\n:::spoiler{.small}\nText',
-        options({'*': h})
-      ),
-      '<spoiler class="big">\n<spoiler class="small">\n<p>Text</p>\n</spoiler>\n</spoiler>'
+      micromark('::::spoiler\n:::spoiler\nText', options({'*': h})),
+      '<spoiler>\n<spoiler>\n<p>Text</p>\n</spoiler>\n</spoiler>'
     )
   })
 
@@ -522,26 +400,6 @@ test('content', async function (t) {
       '<spoiler>\n<ul>\n<li>a</li>\n</ul>\n</spoiler>'
     )
   })
-
-  await t.test(
-    'should support lists w/ label brackets in spoilers',
-    async function () {
-      assert.equal(
-        micromark(':::spoiler[]\n* a\n:::', options({'*': h})),
-        '<spoiler>\n<ul>\n<li>a</li>\n</ul>\n</spoiler>'
-      )
-    }
-  )
-
-  await t.test(
-    'should support lists w/ attribute braces in spoilers',
-    async function () {
-      assert.equal(
-        micromark(':::spoiler{}\n* a\n:::', options({'*': h})),
-        '<spoiler>\n<ul>\n<li>a</li>\n</ul>\n</spoiler>'
-      )
-    }
-  )
 
   await t.test(
     'should support lazy containers in an unclosed spoiler',
@@ -560,18 +418,10 @@ test('content', async function (t) {
  *   Nothing.
  */
 function h(d) {
-  const content = d.content || d.label
-  const attrs = d.attributes || {}
+  const content = d.content
   /** @type {Array<string>} */
   const list = []
   /** @type {string} */
-  let prop
-
-  for (prop in attrs) {
-    if (own.call(attrs, prop)) {
-      list.push(this.encode(prop) + '="' + this.encode(attrs[prop]) + '"')
-    }
-  }
 
   this.tag('<' + d.name)
   if (list.length > 0) this.tag(' ' + list.join(' '))

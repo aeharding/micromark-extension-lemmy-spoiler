@@ -10,8 +10,6 @@ import {ok as assert} from 'devlop'
 import {factorySpace} from 'micromark-factory-space'
 import {markdownLineEnding} from 'micromark-util-character'
 import {codes, constants, types} from 'micromark-util-symbol'
-import {factoryAttributes} from './factory-attributes.js'
-import {factoryLabel} from './factory-label.js'
 
 /** @type {Construct} */
 export const spoiler = {
@@ -19,8 +17,6 @@ export const spoiler = {
   concrete: true
 }
 
-const label = {tokenize: tokenizeLabel, partial: true}
-const attributes = {tokenize: tokenizeAttributes, partial: true}
 const nonLazyLine = {tokenize: tokenizeNonLazyLine, partial: true}
 
 const spoilerKeyword = 'spoiler'
@@ -96,20 +92,6 @@ function tokenizeSpoiler(effects, ok, nok) {
 
   /** @type {State} */
   function afterName(code) {
-    return code === codes.leftSquareBracket
-      ? effects.attempt(label, afterLabel, afterLabel)(code)
-      : afterLabel(code)
-  }
-
-  /** @type {State} */
-  function afterLabel(code) {
-    return code === codes.leftCurlyBrace
-      ? effects.attempt(attributes, afterAttributes, afterAttributes)(code)
-      : afterAttributes(code)
-  }
-
-  /** @type {State} */
-  function afterAttributes(code) {
     return factorySpace(effects, openAfter, types.whitespace)(code)
   }
 
@@ -261,48 +243,6 @@ function tokenizeSpoiler(effects, ok, nok) {
       return nok(code)
     }
   }
-}
-
-/**
- * @this {TokenizeContext}
- * @type {Tokenizer}
- */
-function tokenizeLabel(effects, ok, nok) {
-  // Always a `[`
-  return factoryLabel(
-    effects,
-    ok,
-    nok,
-    'spoilerLabel',
-    'spoilerLabelMarker',
-    'spoilerLabelString',
-    true
-  )
-}
-
-/**
- * @this {TokenizeContext}
- * @type {Tokenizer}
- */
-function tokenizeAttributes(effects, ok, nok) {
-  // Always a `{`
-  return factoryAttributes(
-    effects,
-    ok,
-    nok,
-    'spoilerAttributes',
-    'spoilerAttributesMarker',
-    'spoilerAttribute',
-    'spoilerAttributeId',
-    'spoilerAttributeClass',
-    'spoilerAttributeName',
-    'spoilerAttributeInitializerMarker',
-    'spoilerAttributeValueLiteral',
-    'spoilerAttributeValue',
-    'spoilerAttributeValueMarker',
-    'spoilerAttributeValueData',
-    true
-  )
 }
 
 /**
