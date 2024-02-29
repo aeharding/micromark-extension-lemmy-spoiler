@@ -12,7 +12,6 @@ import {markdownLineEnding} from 'micromark-util-character'
 import {codes, constants, types} from 'micromark-util-symbol'
 import {factoryAttributes} from './factory-attributes.js'
 import {factoryLabel} from './factory-label.js'
-import {factoryName} from './factory-name.js'
 
 /** @type {Construct} */
 export const spoiler = {
@@ -23,6 +22,8 @@ export const spoiler = {
 const label = {tokenize: tokenizeLabel, partial: true}
 const attributes = {tokenize: tokenizeAttributes, partial: true}
 const nonLazyLine = {tokenize: tokenizeNonLazyLine, partial: true}
+
+const spoilerKeyword = 'spoiler'
 
 /**
  * @this {TokenizeContext}
@@ -38,6 +39,8 @@ function tokenizeSpoiler(effects, ok, nok) {
   let sizeOpen = 0
   /** @type {Token} */
   let previous
+
+  let sizeKeyword = 0
 
   return start
 
@@ -63,7 +66,25 @@ function tokenizeSpoiler(effects, ok, nok) {
     }
 
     effects.exit('spoilerSequence')
-    return factoryName.call(self, effects, afterName, nok, 'spoilerName')(code)
+
+    effects.enter('spoilerName')
+
+    return nameStart(code)
+  }
+
+  /** @type {State} */
+  function nameStart(code) {
+    if (code === spoilerKeyword.codePointAt(sizeKeyword)) {
+      effects.consume(code)
+      sizeKeyword++
+      return nameStart
+    }
+
+    if (sizeKeyword < spoilerKeyword.length) return nok(code)
+
+    effects.exit('spoilerName')
+
+    return afterName(code)
   }
 
   /** @type {State} */
