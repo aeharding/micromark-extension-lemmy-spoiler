@@ -26,6 +26,14 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
     assert.equal(micromark(':::spoiler', options()), '')
   })
 
+  await t.test('should support a spoiler with space', async function () {
+    assert.equal(micromark('::: spoiler', options()), '')
+  })
+
+  await t.test('should support a spoiler with many spaces', async function () {
+    assert.equal(micromark(':::    spoiler', options()), '')
+  })
+
   await t.test('should not support a partial spoiler name', async function () {
     assert.equal(micromark(':::spoi', options()), '<p>:::spoi</p>')
   })

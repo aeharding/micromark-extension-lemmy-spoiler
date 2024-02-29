@@ -67,13 +67,20 @@ function tokenizeSpoiler(effects, ok, nok) {
 
     effects.exit('spoilerSequence')
 
-    effects.enter('spoilerName')
+    return afterSequenceOpen(code)
+  }
 
-    return nameStart(code)
+  /** @type {State} */
+  function afterSequenceOpen(code) {
+    return factorySpace(effects, nameStart, types.whitespace)(code)
   }
 
   /** @type {State} */
   function nameStart(code) {
+    if (sizeKeyword === 0) {
+      effects.enter('spoilerName')
+    }
+
     if (code === spoilerKeyword.codePointAt(sizeKeyword)) {
       effects.consume(code)
       sizeKeyword++
