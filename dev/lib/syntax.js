@@ -4,8 +4,6 @@
 
 import {codes} from 'micromark-util-symbol'
 import {directiveContainer} from './directive-container.js'
-import {directiveLeaf} from './directive-leaf.js'
-import {directiveText} from './directive-text.js'
 
 /**
  * Create an extension for `micromark` to enable directive syntax.
@@ -16,7 +14,6 @@ import {directiveText} from './directive-text.js'
  */
 export function directive() {
   return {
-    text: {[codes.colon]: directiveText},
-    flow: {[codes.colon]: [directiveContainer, directiveLeaf]}
+    flow: {[codes.colon]: [directiveContainer]}
   }
 }
