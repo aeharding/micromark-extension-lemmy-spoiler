@@ -19,14 +19,14 @@ npm install micromark-extension-lemmy-spoiler
 In Deno with \[`esm.sh`]\[esmsh]:
 
 ```js
-import {directive, directiveHtml} from 'https://esm.sh/micromark-extension-lemmy-spoiler@1'
+import {spoiler, spoilerHtml} from 'https://esm.sh/micromark-extension-lemmy-spoiler@1'
 ```
 
 In browsers with \[`esm.sh`]\[esmsh]:
 
 ```html
 <script type="module">
-  import {directive, directiveHtml} from 'https://esm.sh/micromark-extension-lemmy-spoiler@1?bundle'
+  import {spoiler, spoilerHtml} from 'https://esm.sh/micromark-extension-lemmy-spoiler@1?bundle'
 </script>
 ```
 

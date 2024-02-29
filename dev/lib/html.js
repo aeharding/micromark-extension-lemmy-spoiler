@@ -14,35 +14,35 @@
  *   Configuration.
  *
  *   > 👉 **Note**: the special field `'*'` can be used to specify a fallback
- *   > handle to handle all otherwise unhandled directives.
+ *   > handle to handle all otherwise unhandled spoilers.
  *
  * @callback Handle
- *   Handle a directive.
+ *   Handle a spoiler.
  * @param {CompileContext} this
  *   Current context.
- * @param {Directive} directive
- *   Directive.
+ * @param {Spoiler} spoiler
+ *   Spoiler.
  * @returns {boolean | undefined}
- *   Signal whether the directive was handled.
+ *   Signal whether the spoiler was handled.
  *
  *   Yield `false` to let the fallback (a special handle for `'*'`) handle it.
  *
- * @typedef Directive
- *   Structure representing a directive.
- * @property {DirectiveType} type
+ * @typedef Spoiler
+ *   Structure representing a spoiler.
+ * @property {SpoilerType} type
  *   Kind.
  * @property {string} name
- *   Name of directive.
+ *   Name of spoiler.
  * @property {string | undefined} [label]
  *   Compiled HTML content that was in `[brackets]`.
  * @property {Record<string, string> | undefined} [attributes]
  *   Object w/ HTML attributes.
  * @property {string | undefined} [content]
- *   Compiled HTML content inside container directive.
+ *   Compiled HTML content inside spoiler.
  * @property {number | undefined} [_fenceCount]
  *   Private :)
  *
- * @typedef {'spoiler'} DirectiveType
+ * @typedef {'spoiler'} SpoilerType
  *   Kind.
  */
 
@@ -52,14 +52,14 @@ import {parseEntities} from 'parse-entities'
 const own = {}.hasOwnProperty
 
 /**
- * Create an extension for `micromark` to support directives when serializing
+ * Create an extension for `micromark` to support spoilers when serializing
  * to HTML.
  *
  * @param {HtmlOptions | null | undefined} [options={}]
  *   Configuration (default: `{}`).
  * @returns {HtmlExtension}
  *   Extension for `micromark` that can be passed in `htmlExtensions`, to
- *   support directives when serializing to HTML.
+ *   support spoilers when serializing to HTML.
  */
 export function spoilerHtml(options) {
   const options_ = options || {}
@@ -90,7 +90,7 @@ export function spoilerHtml(options) {
 
   /**
    * @this {CompileContext}
-   * @param {DirectiveType} type
+   * @param {SpoilerType} type
    */
   function enter(type) {
     let stack = this.getData('spoilerStack')
@@ -104,7 +104,7 @@ export function spoilerHtml(options) {
    */
   function exitName(token) {
     const stack = this.getData('spoilerStack')
-    assert(stack, 'expected directive stack')
+    assert(stack, 'expected spoiler stack')
     stack[stack.length - 1].name = this.sliceSerialize(token)
   }
 
@@ -123,7 +123,7 @@ export function spoilerHtml(options) {
   function exitLabel() {
     const data = this.resume()
     const stack = this.getData('spoilerStack')
-    assert(stack, 'expected directive stack')
+    assert(stack, 'expected spoiler stack')
     stack[stack.length - 1].label = data
   }
 
@@ -199,10 +199,10 @@ export function spoilerHtml(options) {
    */
   function exitAttributes() {
     const stack = this.getData('spoilerStack')
-    assert(stack, 'expected directive stack')
+    assert(stack, 'expected spoiler stack')
     const attributes = this.getData('spoilerAttributes')
     assert(attributes, 'expected attributes')
-    /** @type {Directive['attributes']} */
+    /** @type {Spoiler['attributes']} */
     const cleaned = {}
     let index = -1
 
@@ -228,7 +228,7 @@ export function spoilerHtml(options) {
   function exitContainerContent() {
     const data = this.resume()
     const stack = this.getData('spoilerStack')
-    assert(stack, 'expected directive stack')
+    assert(stack, 'expected spoiler stack')
     stack[stack.length - 1].content = data
   }
 
@@ -238,11 +238,11 @@ export function spoilerHtml(options) {
    */
   function exitContainerFence() {
     const stack = this.getData('spoilerStack')
-    assert(stack, 'expected directive stack')
-    const directive = stack[stack.length - 1]
-    if (!directive._fenceCount) directive._fenceCount = 0
-    directive._fenceCount++
-    if (directive._fenceCount === 1) this.setData('slurpOneLineEnding', true)
+    assert(stack, 'expected spoiler stack')
+    const spoiler = stack[stack.length - 1]
+    if (!spoiler._fenceCount) spoiler._fenceCount = 0
+    spoiler._fenceCount++
+    if (spoiler._fenceCount === 1) this.setData('slurpOneLineEnding', true)
   }
 
   /**
@@ -251,23 +251,23 @@ export function spoilerHtml(options) {
    */
   function exit() {
     const stack = this.getData('spoilerStack')
-    assert(stack, 'expected directive stack')
-    const directive = stack.pop()
-    assert(directive, 'expected directive')
+    assert(stack, 'expected spoiler stack')
+    const spoiler = stack.pop()
+    assert(spoiler, 'expected spoiler')
     /** @type {boolean | undefined} */
     let found
     /** @type {boolean | undefined} */
     let result
 
-    assert(directive.name, 'expected `name`')
+    assert(spoiler.name, 'expected `name`')
 
-    if (own.call(options_, directive.name)) {
-      result = options_[directive.name].call(this, directive)
+    if (own.call(options_, spoiler.name)) {
+      result = options_[spoiler.name].call(this, spoiler)
       found = result !== false
     }
 
     if (!found && own.call(options_, '*')) {
-      result = options_['*'].call(this, directive)
+      result = options_['*'].call(this, spoiler)
       found = result !== false
     }
 

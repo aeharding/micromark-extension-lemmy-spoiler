@@ -11,7 +11,7 @@ import {codes, constants, types} from 'micromark-util-symbol'
 
 // This is a fork of:
 // <https://github.com/micromark/micromark/tree/main/packages/micromark-factory-label>
-// to allow empty labels, balanced brackets (such as for nested directives),
+// to allow empty labels, balanced brackets (such as for nested spoilers),
 // text instead of strings, and optionally disallows EOLs.
 
 /**

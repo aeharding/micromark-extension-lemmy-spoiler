@@ -1,9 +1,9 @@
-import type {Attribute, Directive} from './lib/html.js'
+import type {Attribute, Spoiler} from './lib/html.js'
 
 export {spoiler} from './lib/syntax.js'
 export {
   spoilerHtml,
-  type Directive,
+  type Spoiler,
   type Handle,
   type HtmlOptions
 } from './lib/html.js'
@@ -35,6 +35,6 @@ declare module 'micromark-util-types' {
 
   interface CompileData {
     spoilerAttributes?: Attribute[]
-    spoilerStack?: Directive[]
+    spoilerStack?: Spoiler[]
   }
 }
