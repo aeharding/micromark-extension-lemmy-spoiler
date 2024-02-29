@@ -8,7 +8,7 @@
 
 import {ok as assert} from 'devlop'
 import {factorySpace} from 'micromark-factory-space'
-import {markdownLineEnding} from 'micromark-util-character'
+import {markdownLineEnding, markdownSpace} from 'micromark-util-character'
 import {codes, constants, types} from 'micromark-util-symbol'
 
 /** @type {Construct} */
@@ -74,7 +74,7 @@ function tokenizeSpoiler(effects, ok, nok) {
   /** @type {State} */
   function keywordStart(code) {
     if (sizeKeyword === 0) {
-      effects.enter('spoilerName')
+      effects.enter('spoilerKeyword')
     }
 
     if (code === spoilerKeyword.codePointAt(sizeKeyword)) {
@@ -85,14 +85,41 @@ function tokenizeSpoiler(effects, ok, nok) {
 
     if (sizeKeyword < spoilerKeyword.length) return nok(code)
 
-    effects.exit('spoilerName')
+    effects.exit('spoilerKeyword')
 
     return afterKeyword(code)
   }
 
   /** @type {State} */
   function afterKeyword(code) {
-    return factorySpace(effects, openAfter, types.whitespace)(code)
+    if (!markdownSpace(code)) {
+      return nok(code)
+    }
+
+    return factorySpace(effects, nameStart, types.whitespace)(code)
+  }
+
+  /** @type {State} */
+  function nameStart(code) {
+    effects.enter('spoilerName')
+
+    if (markdownLineEnding(code) || code === codes.eof) {
+      return nok(code)
+    }
+
+    return parseName(code)
+  }
+
+  /** @type {State} */
+  function parseName(code) {
+    if (markdownLineEnding(code) || code === codes.eof) {
+      effects.exit('spoilerName')
+
+      return openAfter(code)
+    }
+
+    effects.consume(code)
+    return parseName
   }
 
   /** @type {State} */
@@ -103,15 +130,16 @@ function tokenizeSpoiler(effects, ok, nok) {
       return afterOpening(code)
     }
 
-    if (markdownLineEnding(code)) {
-      if (self.interrupt) {
-        return ok(code)
-      }
+    assert(
+      markdownLineEnding(code),
+      'openAfter must be called with eof or line ending'
+    )
 
-      return effects.attempt(nonLazyLine, contentStart, afterOpening)(code)
+    if (self.interrupt) {
+      return ok(code)
     }
 
-    return nok(code)
+    return effects.attempt(nonLazyLine, contentStart, afterOpening)(code)
   }
 
   /** @type {State} */
