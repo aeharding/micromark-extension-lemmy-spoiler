@@ -1,12 +1,7 @@
 import type {Spoiler} from './lib/html.js'
 
 export {spoiler} from './lib/syntax.js'
-export {
-  spoilerHtml,
-  type Spoiler,
-  type Handle,
-  type HtmlOptions
-} from './lib/html.js'
+export {spoilerHtml} from './lib/html.js'
 
 declare module 'micromark-util-types' {
   interface TokenTypeMap {

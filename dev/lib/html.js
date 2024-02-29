@@ -5,23 +5,6 @@
  */
 
 /**
- * @typedef {Record<string, Handle>} HtmlOptions
- *   Configuration.
- *
- *   > 👉 **Note**: the special field `'*'` can be used to specify a fallback
- *   > handle to handle all otherwise unhandled spoilers.
- *
- * @callback Handle
- *   Handle a spoiler.
- * @param {CompileContext} this
- *   Current context.
- * @param {Spoiler} spoiler
- *   Spoiler.
- * @returns {boolean | undefined}
- *   Signal whether the spoiler was handled.
- *
- *   Yield `false` to let the fallback (a special handle for `'*'`) handle it.
- *
  * @typedef Spoiler
  *   Structure representing a spoiler.
  * @property {SpoilerType} type
@@ -39,24 +22,19 @@
 
 import {ok as assert} from 'devlop'
 
-const own = {}.hasOwnProperty
-
 /**
  * Create an extension for `micromark` to support spoilers when serializing
  * to HTML.
  *
- * @param {HtmlOptions | null | undefined} [options={}]
- *   Configuration (default: `{}`).
  * @returns {HtmlExtension}
  *   Extension for `micromark` that can be passed in `htmlExtensions`, to
  *   support spoilers when serializing to HTML.
  */
-export function spoilerHtml(options) {
-  const options_ = options || {}
+export function spoilerHtml() {
   return {
     enter: {
       spoiler() {
-        enter.call(this, 'spoiler')
+        enter.call(this)
       },
       spoilerContent() {
         this.buffer()
@@ -72,12 +50,11 @@ export function spoilerHtml(options) {
 
   /**
    * @this {CompileContext}
-   * @param {SpoilerType} type
    */
-  function enter(type) {
+  function enter() {
     let stack = this.getData('spoilerStack')
     if (!stack) this.setData('spoilerStack', (stack = []))
-    stack.push({type, name: ''})
+    stack.push({type: 'spoiler', name: ''})
   }
 
   /**
@@ -122,21 +99,18 @@ export function spoilerHtml(options) {
     const stack = this.getData('spoilerStack')
     assert(stack, 'expected spoiler stack')
     const spoiler = stack.pop()
-    assert(spoiler, 'expected spoiler')
-    /** @type {boolean | undefined} */
-    let found
-    /** @type {boolean | undefined} */
-    let result
 
+    assert(spoiler, 'expected spoiler')
     assert(spoiler.name, 'expected `name`')
 
-    if (!found && own.call(options_, '*')) {
-      result = options_['*'].call(this, spoiler)
-      found = result !== false
+    this.tag('<details>')
+
+    if (spoiler.content) {
+      this.lineEndingIfNeeded()
+      this.raw(spoiler.content)
+      this.lineEndingIfNeeded()
     }
 
-    if (!found) {
-      this.setData('slurpOneLineEnding', true)
-    }
+    this.tag('</details>')
   }
 }
