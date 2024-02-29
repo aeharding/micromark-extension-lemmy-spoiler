@@ -42,7 +42,7 @@
  * @property {number | undefined} [_fenceCount]
  *   Private :)
  *
- * @typedef {'containerDirective'} DirectiveType
+ * @typedef {'spoiler'} DirectiveType
  *   Kind.
  */
 
@@ -65,26 +65,26 @@ export function spoilerHtml(options) {
   const options_ = options || {}
   return {
     enter: {
-      directiveContainer() {
-        enter.call(this, 'containerDirective')
+      spoiler() {
+        enter.call(this, 'spoiler')
       },
-      directiveContainerAttributes: enterAttributes,
-      directiveContainerLabel: enterLabel,
-      directiveContainerContent() {
+      spoilerAttributes: enterAttributes,
+      spoilerLabel: enterLabel,
+      spoilerContent() {
         this.buffer()
       }
     },
     exit: {
-      directiveContainer: exit,
-      directiveContainerAttributeClassValue: exitAttributeClassValue,
-      directiveContainerAttributeIdValue: exitAttributeIdValue,
-      directiveContainerAttributeName: exitAttributeName,
-      directiveContainerAttributeValue: exitAttributeValue,
-      directiveContainerAttributes: exitAttributes,
-      directiveContainerContent: exitContainerContent,
-      directiveContainerFence: exitContainerFence,
-      directiveContainerLabel: exitLabel,
-      directiveContainerName: exitName
+      spoiler: exit,
+      spoilerAttributeClassValue: exitAttributeClassValue,
+      spoilerAttributeIdValue: exitAttributeIdValue,
+      spoilerAttributeName: exitAttributeName,
+      spoilerAttributeValue: exitAttributeValue,
+      spoilerAttributes: exitAttributes,
+      spoilerContent: exitContainerContent,
+      spoilerFence: exitContainerFence,
+      spoilerLabel: exitLabel,
+      spoilerName: exitName
     }
   }
 
@@ -93,8 +93,8 @@ export function spoilerHtml(options) {
    * @param {DirectiveType} type
    */
   function enter(type) {
-    let stack = this.getData('directiveStack')
-    if (!stack) this.setData('directiveStack', (stack = []))
+    let stack = this.getData('spoilerStack')
+    if (!stack) this.setData('spoilerStack', (stack = []))
     stack.push({type, name: ''})
   }
 
@@ -103,7 +103,7 @@ export function spoilerHtml(options) {
    * @type {_Handle}
    */
   function exitName(token) {
-    const stack = this.getData('directiveStack')
+    const stack = this.getData('spoilerStack')
     assert(stack, 'expected directive stack')
     stack[stack.length - 1].name = this.sliceSerialize(token)
   }
@@ -122,7 +122,7 @@ export function spoilerHtml(options) {
    */
   function exitLabel() {
     const data = this.resume()
-    const stack = this.getData('directiveStack')
+    const stack = this.getData('spoilerStack')
     assert(stack, 'expected directive stack')
     stack[stack.length - 1].label = data
   }
@@ -133,7 +133,7 @@ export function spoilerHtml(options) {
    */
   function enterAttributes() {
     this.buffer()
-    this.setData('directiveAttributes', [])
+    this.setData('spoilerAttributes', [])
   }
 
   /**
@@ -141,7 +141,7 @@ export function spoilerHtml(options) {
    * @type {_Handle}
    */
   function exitAttributeIdValue(token) {
-    const attributes = this.getData('directiveAttributes')
+    const attributes = this.getData('spoilerAttributes')
     assert(attributes, 'expected attributes')
     attributes.push([
       'id',
@@ -156,7 +156,7 @@ export function spoilerHtml(options) {
    * @type {_Handle}
    */
   function exitAttributeClassValue(token) {
-    const attributes = this.getData('directiveAttributes')
+    const attributes = this.getData('spoilerAttributes')
     assert(attributes, 'expected attributes')
 
     attributes.push([
@@ -174,7 +174,7 @@ export function spoilerHtml(options) {
   function exitAttributeName(token) {
     // Attribute names in CommonMark are significantly limited, so character
     // references can’t exist.
-    const attributes = this.getData('directiveAttributes')
+    const attributes = this.getData('spoilerAttributes')
     assert(attributes, 'expected attributes')
 
     attributes.push([this.sliceSerialize(token), ''])
@@ -185,7 +185,7 @@ export function spoilerHtml(options) {
    * @type {_Handle}
    */
   function exitAttributeValue(token) {
-    const attributes = this.getData('directiveAttributes')
+    const attributes = this.getData('spoilerAttributes')
     assert(attributes, 'expected attributes')
     attributes[attributes.length - 1][1] = parseEntities(
       this.sliceSerialize(token),
@@ -198,9 +198,9 @@ export function spoilerHtml(options) {
    * @type {_Handle}
    */
   function exitAttributes() {
-    const stack = this.getData('directiveStack')
+    const stack = this.getData('spoilerStack')
     assert(stack, 'expected directive stack')
-    const attributes = this.getData('directiveAttributes')
+    const attributes = this.getData('spoilerAttributes')
     assert(attributes, 'expected attributes')
     /** @type {Directive['attributes']} */
     const cleaned = {}
@@ -217,7 +217,7 @@ export function spoilerHtml(options) {
     }
 
     this.resume()
-    this.setData('directiveAttributes')
+    this.setData('spoilerAttributes')
     stack[stack.length - 1].attributes = cleaned
   }
 
@@ -227,7 +227,7 @@ export function spoilerHtml(options) {
    */
   function exitContainerContent() {
     const data = this.resume()
-    const stack = this.getData('directiveStack')
+    const stack = this.getData('spoilerStack')
     assert(stack, 'expected directive stack')
     stack[stack.length - 1].content = data
   }
@@ -237,7 +237,7 @@ export function spoilerHtml(options) {
    * @type {_Handle}
    */
   function exitContainerFence() {
-    const stack = this.getData('directiveStack')
+    const stack = this.getData('spoilerStack')
     assert(stack, 'expected directive stack')
     const directive = stack[stack.length - 1]
     if (!directive._fenceCount) directive._fenceCount = 0
@@ -250,7 +250,7 @@ export function spoilerHtml(options) {
    * @type {_Handle}
    */
   function exit() {
-    const stack = this.getData('directiveStack')
+    const stack = this.getData('spoilerStack')
     assert(stack, 'expected directive stack')
     const directive = stack.pop()
     assert(directive, 'expected directive')
