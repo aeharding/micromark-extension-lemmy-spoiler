@@ -111,14 +111,6 @@ function tokenizeSpoiler(effects, ok, nok) {
     }
 
     return parseName(code)
-
-    //   Const t = effects.exit(types.chunkDocument)
-
-    // if (markdownLineEnding(code) || code === codes.eof) {
-    //   return nok(code)
-    // }
-
-    // return parseName(code)
   }
 
   /** @type {State} */
@@ -131,15 +123,6 @@ function tokenizeSpoiler(effects, ok, nok) {
 
     effects.consume(code)
     return parseName
-
-    // If (markdownLineEnding(code) || code === codes.eof) {
-    //   effects.exit('spoilerName')
-
-    //   return openAfter(code)
-    // }
-
-    // effects.consume(code)
-    // return parseName
   }
 
   /** @type {State} */
