@@ -27,7 +27,7 @@ test('micromark-extension-lemmy-spoiler (syntax, container)', async function (t)
   await t.test('escapes', async function () {
     assert.equal(
       micromark(':::spoiler <hi></hi>', options()),
-      '<details>\n<summary>&lt;hi&gt;&lt;/hi&gt;</summary>\n</details>'
+      '<details>\n<summary><hi></hi></summary>\n</details>'
     )
   })
 
@@ -541,6 +541,13 @@ test('content', async function (t) {
       )
     }
   )
+
+  await t.test('should support strong in spoiler label', async function () {
+    assert.equal(
+      micromark(':::spoiler **hi**\nMy Spoiler\n:::', options()),
+      '<details>\n<summary><strong>hi</strong></summary>\n<p>My Spoiler</p>\n</details>'
+    )
+  })
 })
 
 function options() {
