@@ -13,6 +13,7 @@
     "unified"
   ],
   "repository": "aeharding/micromark-extension-lemmy-spoiler",
+  "homepage": "https://github.com/aeharding/micromark-extension-lemmy-spoiler#readme",
   "bugs": "https://github.com/aeharding/micromark-extension-lemmy-spoiler/issues",
   "sideEffects": false,
   "type": "module",
